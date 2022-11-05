@@ -48,7 +48,7 @@ export default class LazyStorage extends EventEmitter {
     /**
      * Closes the storage and halts the check interval
      */
-    public async close (): Promise<void> {
+    public close (): void {
         return this._cache.close();
     }
 
@@ -56,21 +56,21 @@ export default class LazyStorage extends EventEmitter {
      * Deletes the value(s) with the specified key
      * @param key
      */
-    public async del<KeyType = any> (key: KeyType): Promise<number> {
+    public del<KeyType = any> (key: KeyType): number {
         return this._cache.del(this.stringify(key));
     }
 
     /**
      * Flushes all records from storage
      */
-    public async flushAll (): Promise<void> {
+    public flushAll (): void {
         this._cache.flushAll();
     }
 
     /**
      * Flushes the storage statistics
      */
-    public async flushStats (): Promise<void> {
+    public flushStats (): void {
         return this._cache.flushStats();
     }
 
@@ -79,7 +79,7 @@ export default class LazyStorage extends EventEmitter {
      *
      * @param key
      */
-    public async get<ValueType = any, KeyType = any> (key: KeyType): Promise<ValueType | undefined> {
+    public get<ValueType = any, KeyType = any> (key: KeyType): ValueType | undefined {
         const set_key = this.stringify(key);
 
         return this._cache.get(set_key);
@@ -90,7 +90,7 @@ export default class LazyStorage extends EventEmitter {
      *
      * @param key
      */
-    public async getTtl<KeyType = any> (key: KeyType): Promise<number | undefined> {
+    public getTtl<KeyType = any> (key: KeyType): number | undefined {
         const fetch_key = this.stringify(key);
 
         return this._cache.getTtl(fetch_key);
@@ -101,14 +101,14 @@ export default class LazyStorage extends EventEmitter {
      *
      * @param key
      */
-    public async has<KeyType = any> (key: KeyType): Promise<boolean> {
+    public has<KeyType = any> (key: KeyType): boolean {
         return this._cache.has(this.stringify(key));
     }
 
     /**
      * Retrieves a list of all keys
      */
-    public async keys<KeyType = any> (): Promise<KeyType[]> {
+    public keys<KeyType = any> (): KeyType[] {
         return this._cache.keys()
             .map(key => this.unstringify(key));
     }
@@ -116,8 +116,8 @@ export default class LazyStorage extends EventEmitter {
     /**
      * Retrieves a map of all keys and values
      */
-    public async list<ValueType = any, KeyType = any> (): Promise<Map<KeyType, ValueType>> {
-        const keys = await this.keys();
+    public list<ValueType = any, KeyType = any> (): Map<KeyType, ValueType> {
+        const keys = this.keys();
 
         return this.mget(keys);
     }
@@ -127,7 +127,7 @@ export default class LazyStorage extends EventEmitter {
      *
      * @param keys
      */
-    public async mdel<KeyType = any> (keys: KeyType[]): Promise<number> {
+    public mdel<KeyType = any> (keys: KeyType[]): number {
         const fetch_keys = keys.map(key => this.stringify(key));
 
         return this._cache.del(fetch_keys);
@@ -138,9 +138,9 @@ export default class LazyStorage extends EventEmitter {
      *
      * @param keys
      */
-    public async mget<ValueType = any, KeyType = any> (
+    public mget<ValueType = any, KeyType = any> (
         keys: KeyType[]
-    ): Promise<Map<KeyType, ValueType>> {
+    ): Map<KeyType, ValueType> {
         const fetch_keys = keys.map(key => this.stringify(key));
 
         const data = this._cache.mget(fetch_keys);
@@ -163,11 +163,11 @@ export default class LazyStorage extends EventEmitter {
      * @param values
      * @param ttl
      */
-    public async mset<ValueType = any, KeyType = any> (
+    public mset<ValueType = any, KeyType = any> (
         keys: KeyType[],
         values: ValueType[],
         ttl = this._stdTTL
-    ): Promise<boolean> {
+    ): boolean {
         if (keys.length !== values.length) {
             throw new Error('Keys and values array lengths must match');
         }
@@ -196,11 +196,11 @@ export default class LazyStorage extends EventEmitter {
      * @param value
      * @param ttl
      */
-    public async set<ValueType = any, KeyType = any> (
+    public set<ValueType = any, KeyType = any> (
         key: KeyType,
         value: ValueType,
         ttl = this._stdTTL
-    ): Promise<boolean> {
+    ): boolean {
         const set_key = this.stringify(key);
 
         return this._cache.set(set_key, this.stringify(value)) && this._cache.ttl(set_key, ttl);
@@ -209,13 +209,13 @@ export default class LazyStorage extends EventEmitter {
     /**
      * Returns storage statistics
      */
-    public async stats (): Promise<{
+    public stats (): {
         keys: number;
         hits: number;
         misses: number;
         ksize: number;
         vsize: number;
-    }> {
+        } {
         return this._cache.getStats();
     }
 
@@ -224,9 +224,9 @@ export default class LazyStorage extends EventEmitter {
      *
      * @param key
      */
-    public async take<ValueType = any, KeyType = any> (
+    public take<ValueType = any, KeyType = any> (
         key: KeyType
-    ): Promise<ValueType | undefined> {
+    ): ValueType | undefined {
         const fetch_key = this.stringify(key);
 
         return this._cache.take(fetch_key);
@@ -238,7 +238,7 @@ export default class LazyStorage extends EventEmitter {
      * @param key
      * @param ttl
      */
-    public async ttl<KeyType = any> (key: KeyType, ttl = this._stdTTL): Promise<boolean> {
+    public ttl<KeyType = any> (key: KeyType, ttl = this._stdTTL): boolean {
         const set_key = this.stringify(key);
 
         return this._cache.ttl(set_key, ttl);

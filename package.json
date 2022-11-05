@@ -1,6 +1,6 @@
 {
   "name": "@gibme/lazy-storage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple port forward helper/service",
   "main": "dist/lazy-storage.js",
   "types": "dist/lazy-storage.d.ts",
