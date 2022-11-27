@@ -1,6 +1,22 @@
-// Copyright (c) 2018-2022, Brandon Lehmann
+// Copyright (c) 2018-2022, Brandon Lehmann <brandonlehmann@gmail.com>
 //
-// Please see the included LICENSE file for more information.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 import NodeCache, { Options } from 'node-cache';
 import { EventEmitter } from 'events';
@@ -61,6 +77,22 @@ export default class LazyStorage extends EventEmitter {
     }
 
     /**
+     * Alias for `del()`
+     *
+     * @param key
+     */
+    public remove<KeyType = any> (key: KeyType): number {
+        return this.del<KeyType>(key);
+    }
+
+    /**
+     * Alias for `flushAll()`
+     */
+    public clear (): void {
+        return this.flushAll();
+    }
+
+    /**
      * Flushes all records from storage
      */
     public flushAll (): void {
@@ -82,7 +114,11 @@ export default class LazyStorage extends EventEmitter {
     public get<ValueType = any, KeyType = any> (key: KeyType): ValueType | undefined {
         const set_key = this.stringify(key);
 
-        return this._cache.get(set_key);
+        const value = this._cache.get<string>(set_key);
+
+        if (value) {
+            return this.unstringify(value);
+        }
     }
 
     /**
@@ -91,9 +127,7 @@ export default class LazyStorage extends EventEmitter {
      * @param key
      */
     public getTtl<KeyType = any> (key: KeyType): number | undefined {
-        const fetch_key = this.stringify(key);
-
-        return this._cache.getTtl(fetch_key);
+        return this._cache.getTtl(this.stringify(key));
     }
 
     /**
@@ -220,16 +254,18 @@ export default class LazyStorage extends EventEmitter {
     }
 
     /**
-     * Retrieves the value with the specified key and immediately deletes it
+     * Retrieves the value with the specified key and immediately deletes it from storage
      *
      * @param key
      */
     public take<ValueType = any, KeyType = any> (
         key: KeyType
     ): ValueType | undefined {
-        const fetch_key = this.stringify(key);
+        const value = this._cache.take<string>(this.stringify(key));
 
-        return this._cache.take(fetch_key);
+        if (value) {
+            return this.unstringify(value);
+        }
     }
 
     /**
@@ -239,16 +275,28 @@ export default class LazyStorage extends EventEmitter {
      * @param ttl
      */
     public ttl<KeyType = any> (key: KeyType, ttl = this._stdTTL): boolean {
-        const set_key = this.stringify(key);
-
-        return this._cache.ttl(set_key, ttl);
+        return this._cache.ttl(this.stringify(key), ttl);
     }
 
+    /**
+     * JSON encodes the value
+     *
+     * @param value
+     * @private
+     */
     private stringify<InputType = any> (value: InputType): string {
         return JSON.stringify(value);
     }
 
+    /**
+     * Parses JSON into a value
+     *
+     * @param value
+     * @private
+     */
     private unstringify<ValueType, InputType = any> (value: InputType): ValueType {
         return JSON.parse(value as string);
     }
 }
+
+export { LazyStorage };

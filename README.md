@@ -2,6 +2,12 @@
 
 Accepts arbitrary keys and values as it will JSON encode all keys and values before storing and will parse the JSON when retrieving.
 
+## Documentation
+
+[https://gibme-npm.github.io/lazy-storage/](https://gibme-npm.github.io/lazy-storage/)
+
+## Sample Code
+
 ```typescript
 import LazyStorage from '@gibme/lazy-storage';
 
